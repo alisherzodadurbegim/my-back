@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
-
 import path from 'path'
 import { fileURLToPath } from 'url'
 import connectDB from './config/db.js'
@@ -12,51 +11,55 @@ import connectDB from './config/db.js'
 // routes import
 import adminRoutes from './routes/adminRoute.js'
 import authRoutes from './routes/authRoutes.js'
-import cardRotes from './routes/cartRoutes.js'
+import cartRoutes from './routes/cartRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import uploadRoute from './routes/upload.js'
+
 dotenv.config()
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const handle = app.getRequestHandler()
-
 const server = express()
 
-// middlewares
+// Middlewares
 server.use(express.json())
 server.use(cors())
 server.use(cookieParser())
-server.use(
-	'/_next/static',
-	express.static(path.join(__dirname, '.next', 'static'))
-)
-server.use(
-	'/uploads',
-	express.static(path.join(process.cwd(), 'server/uploads'))
-)
+
+// Static folders (lokal va deploy uchun yo'llarni tekshiring)
+server.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 server.use('/public', express.static(path.join(__dirname, 'public')))
-// MongoDB connect
-connectDB()
 
 // API routes
 server.use('/api/auth', authRoutes)
 server.use('/api/products', productRoutes)
-server.use('/api/cart', cardRotes)
+server.use('/api/cart', cartRoutes)
 server.use('/api/orders', orderRoutes)
 server.use('/api/upload', uploadRoute)
-
 server.use('/api/admin', adminRoutes)
-// All other routes Next.js ga topshiriladi
-server.use((req, res) => handle(req, res))
 
-const PORT = process.env.PORT || 3000
-server
-	.listen(PORT, () =>
-		console.log(
-			`MongoDB başarıyla bağlandı, tebrikler! http://localhost:${PORT}`
-		)
-	)
+// Default route (health check)
+server.get('/', (req, res) => {
+	res.send('✅ Backend is running!')
+})
 
-	.catch(err => console.error(err))
+// Async start: avval DB ga ulanish, keyin serverni ishga tushirish
+async function start() {
+	try {
+		// Agar connectDB async bo'lsa await bilan chaqiring
+		await connectDB() // agar connectDB sync bo'lsa ham oqibatiga ta'sir qilmaydi
+		const PORT = process.env.PORT || 3000
+		server.listen(PORT, () => {
+			console.log(
+				`MongoDB başarıyla bağlandı, tebrikler! http://localhost:${PORT}`
+			)
+		})
+	} catch (err) {
+		console.error('Server start failed:', err)
+		process.exit(1)
+	}
+}
+
+start()
