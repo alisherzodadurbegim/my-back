@@ -24,7 +24,7 @@ const __dirname = path.dirname(__filename)
 const server = express()
 const allowedOrigins = [
 	'http://localhost:3000', // dev
-	'https://sizning-frontend.vercel.app', // deploy frontend URL
+	'https://oxaelectronics.vercel.app', // deploy frontend URL
 ]
 // Middlewares
 server.use(express.json())
