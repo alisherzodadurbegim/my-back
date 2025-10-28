@@ -22,23 +22,32 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const server = express()
-
+const allowedOrigins = [
+	'http://localhost:3000', // dev
+	'https://sizning-frontend.vercel.app', // deploy frontend URL
+]
 // Middlewares
 server.use(express.json())
-server.use(cors())
+
+server.use(
+	cors({
+		origin: allowedOrigins,
+		credentials: true, // 🟢 cookie yuborish uchun shart
+	})
+)
 server.use(cookieParser())
 
 // Static folders (lokal va deploy uchun yo'llarni tekshiring)
 server.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 server.use('/public', express.static(path.join(__dirname, 'public')))
 
+server.use('/api/admin', adminRoutes)
 // API routes
 server.use('/api/auth', authRoutes)
 server.use('/api/products', productRoutes)
 server.use('/api/cart', cartRoutes)
 server.use('/api/orders', orderRoutes)
 server.use('/api/upload', uploadRoute)
-server.use('/api/admin', adminRoutes)
 
 // Default route (health check)
 server.get('/', (req, res) => {

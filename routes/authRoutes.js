@@ -39,8 +39,8 @@ router.post('/register', async (req, res) => {
 
 		res.cookie('token', token, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
+			secure: process.env.NODE_ENV === 'production', // ✅ Render uchun true bo‘ladi
+			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ✅ 'none' bo‘lishi shart
 			maxAge: 24 * 60 * 60 * 1000,
 		})
 
@@ -74,8 +74,8 @@ router.post('/login', async (req, res) => {
 		const token = createToken(user)
 		res.cookie('token', token, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
+			secure: process.env.NODE_ENV === 'production', // ✅ Render uchun true bo‘ladi
+			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ✅ 'none' bo‘lishi shart
 			maxAge: 24 * 60 * 60 * 1000,
 		})
 
