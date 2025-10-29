@@ -25,6 +25,8 @@ const server = express()
 const allowedOrigins = [
 	'http://localhost:3000', // dev
 	'https://oxaelectronics.vercel.app', // deploy frontend URL
+	'https://oxaexpress.com', // yangi domen
+	'https://www.oxaexpress.com',
 ]
 // Middlewares
 server.use(express.json())
